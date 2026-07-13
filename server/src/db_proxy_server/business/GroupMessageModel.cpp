@@ -181,9 +181,7 @@ bool CGroupMessageModel::clearMessageCount(uint32_t nUserId, uint32_t nGroupId)
     {
         string strGroupKey = int2string(nGroupId) + GROUP_TOTAL_MSG_COUNTER_REDIS_KEY_SUFFIX;
         map<string, string> mapGroupCount;
-        bool bRet = pCacheConn->hgetAll(strGroupKey, mapGroupCount);
-        pCacheManager->RelCacheConn(pCacheConn);
-        if(bRet)
+        if (pCacheConn->hgetAll(strGroupKey, mapGroupCount))
         {
             string strUserKey = int2string(nUserId) + "_" + int2string(nGroupId) + GROUP_USER_MSG_COUNTER_REDIS_KEY_SUFFIX;
             string strReply = pCacheConn->hmset(strUserKey, mapGroupCount);
@@ -200,6 +198,7 @@ bool CGroupMessageModel::clearMessageCount(uint32_t nUserId, uint32_t nGroupId)
         {
             log("hgetAll %s failed !", strGroupKey.c_str());
         }
+        pCacheManager->RelCacheConn(pCacheConn);
     }
     else
     {
@@ -331,7 +330,6 @@ void CGroupMessageModel::getUnreadMsgCount(uint32_t nUserId, uint32_t &nTotalCnt
 {
     list<uint32_t> lsGroupId;
     CGroupModel::getInstance()->getUserGroupIds(nUserId, lsGroupId, 0);
-    uint32_t nCount = 0;
     
     CacheManager* pCacheManager = CacheManager::getInstance();
     CacheConn* pCacheConn = pCacheManager->GetCacheConn("unread");
@@ -340,6 +338,7 @@ void CGroupMessageModel::getUnreadMsgCount(uint32_t nUserId, uint32_t &nTotalCnt
         for(auto it=lsGroupId.begin(); it!=lsGroupId.end(); ++it)
         {
             uint32_t nGroupId = *it;
+            uint32_t nCount = 0;
             string strGroupKey = int2string(nGroupId) + GROUP_TOTAL_MSG_COUNTER_REDIS_KEY_SUFFIX;
             string strGroupCnt = pCacheConn->hget(strGroupKey, GROUP_COUNTER_SUBKEY_COUNTER_FIELD);
             if(strGroupCnt.empty())
@@ -475,7 +474,6 @@ void CGroupMessageModel::getUnReadCntAll(uint32_t nUserId, uint32_t &nTotalCnt)
 {
     list<uint32_t> lsGroupId;
     CGroupModel::getInstance()->getUserGroupIds(nUserId, lsGroupId, 0);
-    uint32_t nCount = 0;
     
     CacheManager* pCacheManager = CacheManager::getInstance();
     CacheConn* pCacheConn = pCacheManager->GetCacheConn("unread");
@@ -484,6 +482,7 @@ void CGroupMessageModel::getUnReadCntAll(uint32_t nUserId, uint32_t &nTotalCnt)
         for(auto it=lsGroupId.begin(); it!=lsGroupId.end(); ++it)
         {
             uint32_t nGroupId = *it;
+            uint32_t nCount = 0;
             string strGroupKey = int2string(nGroupId) + GROUP_TOTAL_MSG_COUNTER_REDIS_KEY_SUFFIX;
             string strGroupCnt = pCacheConn->hget(strGroupKey, GROUP_COUNTER_SUBKEY_COUNTER_FIELD);
             if(strGroupCnt.empty())
