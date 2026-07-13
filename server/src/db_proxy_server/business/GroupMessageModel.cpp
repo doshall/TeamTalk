@@ -99,12 +99,12 @@ bool CGroupMessageModel::sendMessage(uint32_t nFromId, uint32_t nGroupId, IM::Ba
                 pStmt->SetParam(index++, nCreateTime);
                 pStmt->SetParam(index++, nCreateTime);
                 
-                bool bRet = pStmt->ExecuteUpdate();
-                if (bRet)
+                if (pStmt->ExecuteUpdate())
                 {
                     CGroupModel::getInstance()->updateGroupChat(nGroupId);
                     incMessageCount(nFromId, nGroupId);
                     clearMessageCount(nFromId, nGroupId);
+                    bRet = true;
                 } else {
                     log("insert message failed: %s", strSql.c_str());
                 }
@@ -225,8 +225,7 @@ bool CGroupMessageModel::incMessageCount(uint32_t nUserId, uint32_t nGroupId)
         string strGroupKey = int2string(nGroupId) + GROUP_TOTAL_MSG_COUNTER_REDIS_KEY_SUFFIX;
         pCacheConn->hincrBy(strGroupKey, GROUP_COUNTER_SUBKEY_COUNTER_FIELD, 1);
         map<string, string> mapGroupCount;
-        bool bRet = pCacheConn->hgetAll(strGroupKey, mapGroupCount);
-        if(bRet)
+        if (pCacheConn->hgetAll(strGroupKey, mapGroupCount))
         {
             string strUserKey = int2string(nUserId) + "_" + int2string(nGroupId) + GROUP_USER_MSG_COUNTER_REDIS_KEY_SUFFIX;
             string strReply = pCacheConn->hmset(strUserKey, mapGroupCount);
@@ -361,10 +360,9 @@ void CGroupMessageModel::getUnreadMsgCount(uint32_t nUserId, uint32_t &nTotalCnt
                 cUnreadInfo.set_session_id(nGroupId);
                 cUnreadInfo.set_session_type(IM::BaseDefine::SESSION_TYPE_GROUP);
                 cUnreadInfo.set_unread_cnt(nCount);
-                nTotalCnt += nCount;
                 string strMsgData;
                 uint32_t nMsgId;
-                IM::BaseDefine::MsgType nType;
+                IM::BaseDefine::MsgType nType = (IM::BaseDefine::MsgType)0;
                 uint32_t nFromId;
                 getLastMsg(nGroupId, nMsgId, strMsgData, nType, nFromId);
                 if(IM::BaseDefine::MsgType_IsValid(nType))
@@ -374,6 +372,7 @@ void CGroupMessageModel::getUnreadMsgCount(uint32_t nUserId, uint32_t &nTotalCnt
                     cUnreadInfo.set_latest_msg_type(nType);
                     cUnreadInfo.set_latest_msg_from_user_id(nFromId);
                     lsUnreadCount.push_back(cUnreadInfo);
+                    nTotalCnt += nCount;
                 }
                 else
                 {

@@ -122,6 +122,16 @@ namespace DB_PROXY {
             else
             {
                 log("invalied session_type. userId=%u, peerId=%u, seseionType=%u", nUserId, nPeerId, nType);
+                msgResp.set_attach_data(msg.attach_data());
+                msgResp.set_user_id(nUserId);
+                msgResp.set_session_id(nPeerId);
+                msgResp.set_session_type(nType);
+                msgResp.set_result_code(1);
+                pPduResp->SetPBMsg(&msgResp);
+                pPduResp->SetSeqNum(pPdu->GetSeqNum());
+                pPduResp->SetServiceId(IM::BaseDefine::SID_BUDDY_LIST);
+                pPduResp->SetCommandId(IM::BaseDefine::CID_BUDDY_LIST_REMOVE_SESSION_RES);
+                CProxyConn::AddResponsePdu(conn_uuid, pPduResp);
             }
         }
         else{

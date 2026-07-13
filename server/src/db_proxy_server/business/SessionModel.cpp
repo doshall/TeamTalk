@@ -207,7 +207,7 @@ void CSessionModel::fillSessionMsg(uint32_t nUserId, list<IM::BaseDefine::Contac
     {
         uint32_t nMsgId = 0;
         string strMsgData;
-        IM::BaseDefine::MsgType nMsgType;
+        IM::BaseDefine::MsgType nMsgType = (IM::BaseDefine::MsgType)0;
         uint32_t nFromId = 0;
         if( it->session_type() == IM::BaseDefine::SESSION_TYPE_SINGLE)
         {
@@ -218,18 +218,14 @@ void CSessionModel::fillSessionMsg(uint32_t nUserId, list<IM::BaseDefine::Contac
         {
             CGroupMessageModel::getInstance()->getLastMsg(it->session_id(), nMsgId, strMsgData, nMsgType, nFromId);
         }
-        if(!IM::BaseDefine::MsgType_IsValid(nMsgType))
-        {
-            it = lsContact.erase(it);
-        }
-        else
+        if(IM::BaseDefine::MsgType_IsValid(nMsgType))
         {
             it->set_latest_msg_from_user_id(nFromId);
             it->set_latest_msg_id(nMsgId);
             it->set_latest_msg_data(strMsgData);
             it->set_latest_msg_type(nMsgType);
-            ++it;
         }
+        ++it;
     }
 }
 
