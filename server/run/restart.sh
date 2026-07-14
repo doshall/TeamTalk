@@ -1,4 +1,4 @@
-#/bin/sh
+#!/bin/bash
 #start or stop the im-server
 
 
@@ -52,8 +52,11 @@ case $1 in
   db_proxy_server)
   restart $1
   ;;
+  msfs)
+    restart $1
+    ;;
 	*)
 		echo "Usage: "
-		echo "  ./restart.sh (login_server|msg_server|route_server|http_msg_server|file_server|push_server)"
+		echo "  ./restart.sh (login_server|msg_server|route_server|http_msg_server|file_server|push_server|db_proxy_server|msfs)"
 		;;
 esac
