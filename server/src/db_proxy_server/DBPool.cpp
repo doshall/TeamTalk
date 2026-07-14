@@ -225,7 +225,7 @@ int CDBConn::Init()
 		return 1;
 	}
 
-	my_bool reconnect = true;
+	bool reconnect = true;
 	mysql_options(m_mysql, MYSQL_OPT_RECONNECT, &reconnect);
 	mysql_options(m_mysql, MYSQL_SET_CHARSET_NAME, "utf8mb4");
 
