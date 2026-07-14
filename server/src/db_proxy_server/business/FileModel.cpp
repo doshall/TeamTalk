@@ -25,9 +25,8 @@ CFileModel::~CFileModel()
 
 CFileModel* CFileModel::getInstance()
 {
-    if (m_pInstance == NULL) {
-        m_pInstance = new CFileModel();
-    }
+    static CFileModel instance;
+    m_pInstance = &instance;
     return m_pInstance;
 }
 
@@ -111,15 +110,24 @@ void CFileModel::delOfflineFile(uint32_t fromId, uint32_t toId, string& taskId)
     CDBConn* pDBConn = pDBManager->GetDBConn("teamtalk_master");
     if (pDBConn)
     {
-        string strSql = "delete from IMTransmitFile where  fromId=" + int2string(fromId) + " and toId="+int2string(toId) + " and taskId='" + taskId + "'";
-        if(pDBConn->ExecuteUpdate(strSql.c_str()))
+        string strSql = "delete from IMTransmitFile where fromId=? and toId=? and taskId=?";
+        CPrepareStatement* pStmt = new CPrepareStatement();
+        if (pStmt->Init(pDBConn->GetMysql(), strSql))
         {
-            log("delete offline file success.%d->%d:%s", fromId, toId, taskId.c_str());
+            uint32_t index = 0;
+            pStmt->SetParam(index++, fromId);
+            pStmt->SetParam(index++, toId);
+            pStmt->SetParam(index++, taskId);
+            if(pStmt->ExecuteUpdate())
+            {
+                log("delete offline file success.%d->%d:%s", fromId, toId, taskId.c_str());
+            }
+            else
+            {
+                log("delete offline file failed.%d->%d:%s", fromId, toId, taskId.c_str());
+            }
         }
-        else
-        {
-            log("delete offline file failed.%d->%d:%s", fromId, toId, taskId.c_str());
-        }
+        delete pStmt;
         pDBManager->RelDBConn(pDBConn);
     }
     else

@@ -41,10 +41,8 @@ CAudioModel::~CAudioModel()
  */
 CAudioModel* CAudioModel::getInstance()
 {
-	if (!m_pInstance) {
-		m_pInstance = new CAudioModel();
-	}
-
+	static CAudioModel instance;
+	m_pInstance = &instance;
 	return m_pInstance;
 }
 

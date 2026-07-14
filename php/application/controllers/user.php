@@ -136,8 +136,12 @@ class User extends TT_Controller {
 		include_once APPPATH."libraries/image_moo.php";
 
 		try{
-		    $filename=$this->input->get('filename');
-		    $ext = pathinfo($filename, PATHINFO_EXTENSION);
+		    $filename = basename($this->input->get('filename'));
+		    $ext = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
+		    $allowed_ext = array('jpg', 'jpeg', 'png', 'gif');
+		    if (!in_array($ext, $allowed_ext)) {
+		        $ext = 'jpg';
+		    }
 		    $filename = time().".".$ext;
 		    $input = file_get_contents("php://input");
 		    file_put_contents('./download/'.$filename, $input);

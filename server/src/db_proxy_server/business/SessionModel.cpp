@@ -18,10 +18,8 @@ CSessionModel* CSessionModel::m_pInstance = NULL;
 
 CSessionModel* CSessionModel::getInstance()
 {
-    if (!m_pInstance) {
-        m_pInstance = new CSessionModel();
-    }
-    
+    static CSessionModel instance;
+    m_pInstance = &instance;
     return m_pInstance;
 }
 
@@ -31,7 +29,7 @@ void CSessionModel::getRecentSession(uint32_t nUserId, uint32_t lastTime, list<I
     CDBConn* pDBConn = pDBManager->GetDBConn("teamtalk_slave");
     if (pDBConn)
     {
-        string strSql = "select * from IMRecentSession where userId = " + int2string(nUserId) + " and status = 0 and updated >" + int2string(lastTime) + " order by updated desc limit 100";
+        string strSql = "select * from IMRecentSession where userId = " + int2string(nUserId) + " and status = 0 and updated >=" + int2string(lastTime) + " order by updated desc limit 100";
         
         CResultSet* pResultSet = pDBConn->ExecuteQuery(strSql.c_str());
         if (pResultSet)
@@ -207,7 +205,7 @@ void CSessionModel::fillSessionMsg(uint32_t nUserId, list<IM::BaseDefine::Contac
     {
         uint32_t nMsgId = 0;
         string strMsgData;
-        IM::BaseDefine::MsgType nMsgType;
+        IM::BaseDefine::MsgType nMsgType = (IM::BaseDefine::MsgType)0;
         uint32_t nFromId = 0;
         if( it->session_type() == IM::BaseDefine::SESSION_TYPE_SINGLE)
         {
@@ -218,18 +216,14 @@ void CSessionModel::fillSessionMsg(uint32_t nUserId, list<IM::BaseDefine::Contac
         {
             CGroupMessageModel::getInstance()->getLastMsg(it->session_id(), nMsgId, strMsgData, nMsgType, nFromId);
         }
-        if(!IM::BaseDefine::MsgType_IsValid(nMsgType))
-        {
-            it = lsContact.erase(it);
-        }
-        else
+        if(IM::BaseDefine::MsgType_IsValid(nMsgType))
         {
             it->set_latest_msg_from_user_id(nFromId);
             it->set_latest_msg_id(nMsgId);
             it->set_latest_msg_data(strMsgData);
             it->set_latest_msg_type(nMsgType);
-            ++it;
         }
+        ++it;
     }
 }
 

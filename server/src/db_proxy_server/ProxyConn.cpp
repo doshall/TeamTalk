@@ -198,9 +198,12 @@ void CProxyConn::OnTimer(uint64_t curr_tick)
 
 void CProxyConn::HandlePduBuf(uchar_t* pdu_buf, uint32_t pdu_len)
 {
-    CImPdu* pPdu = NULL;
-    pPdu = CImPdu::ReadPdu(pdu_buf, pdu_len);
+    CImPdu* pPdu = CImPdu::ReadPdu(pdu_buf, pdu_len);
+    if (!pPdu) {
+        return;
+    }
     if (pPdu->GetCommandId() == IM::BaseDefine::CID_OTHER_HEARTBEAT) {
+        delete pPdu;
         return;
     }
     
@@ -211,6 +214,7 @@ void CProxyConn::HandlePduBuf(uchar_t* pdu_buf, uint32_t pdu_len)
         g_thread_pool.AddTask(pTask);
     } else {
         log("no handler for packet type: %d", pPdu->GetCommandId());
+        delete pPdu;
     }
 }
 

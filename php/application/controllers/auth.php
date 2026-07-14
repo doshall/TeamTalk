@@ -23,7 +23,7 @@ class Auth extends CI_Controller {
 		$password = $this->input->post('password');
 		if($submit){
 			$admin = $this->admin_model->getOne(array('uname'=>$account));
-			if(md5($password) == $admin['pwd']){
+			if($admin && md5($password) == $admin['pwd']){
 				$session = array(
 					'account' => $account
 				);

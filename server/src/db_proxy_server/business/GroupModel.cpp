@@ -38,9 +38,8 @@ CGroupModel::~CGroupModel()
 
 CGroupModel* CGroupModel::getInstance()
 {
-    if (!m_pInstance) {
-        m_pInstance = new CGroupModel();
-    }
+    static CGroupModel instance;
+    m_pInstance = &instance;
     return m_pInstance;
 }
 

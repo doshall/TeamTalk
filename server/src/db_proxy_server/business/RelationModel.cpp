@@ -31,10 +31,8 @@ CRelationModel::~CRelationModel()
 
 CRelationModel* CRelationModel::getInstance()
 {
-	if (!m_pInstance) {
-		m_pInstance = new CRelationModel();
-	}
-
+	static CRelationModel instance;
+	m_pInstance = &instance;
 	return m_pInstance;
 }
 

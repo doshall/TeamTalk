@@ -35,7 +35,7 @@ public:
     bool clearMessageCount(uint32_t nUserId, uint32_t nPeerId);
     uint32_t getMsgId(uint32_t nRelateId);
     void getUnreadMsgCount(uint32_t nUserId, uint32_t &nTotalCnt, list<IM::BaseDefine::UnreadInfo>& lsUnreadCount);
-    void getLastMsg(uint32_t nFromId, uint32_t nToId, uint32_t& nMsgId, string& strMsgData, IM::BaseDefine::MsgType & nMsgType, uint32_t nStatus = 0);
+    void getLastMsg(uint32_t nFromId, uint32_t nToId, uint32_t& nMsgId, string& strMsgData, IM::BaseDefine::MsgType & nMsgType, uint32_t nStatus = 0, uint32_t* pFromUserId = NULL);
     void getUnReadCntAll(uint32_t nUserId, uint32_t &nTotalCnt);
     void getMsgByMsgId(uint32_t nUserId, uint32_t nPeerId, const list<uint32_t>& lsMsgId, list<IM::BaseDefine::MsgInfo>& lsMsg);
     bool resetMsgId(uint32_t nRelateId);

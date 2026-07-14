@@ -169,10 +169,10 @@ namespace DB_PROXY {
                             nPeerSessionId = CSessionModel::getInstance()->getSessionId(nToId, nFromId, IM::BaseDefine::SESSION_TYPE_SINGLE, false);
                             if(INVALID_VALUE ==  nPeerSessionId)
                             {
-                                nSessionId = CSessionModel::getInstance()->addSession(nToId, nFromId, IM::BaseDefine::SESSION_TYPE_SINGLE);
+                                nPeerSessionId = CSessionModel::getInstance()->addSession(nToId, nFromId, IM::BaseDefine::SESSION_TYPE_SINGLE);
                             }
                             uint32_t nRelateId = CRelationModel::getInstance()->getRelationId(nFromId, nToId, true);
-                            if(nSessionId != INVALID_VALUE && nRelateId != INVALID_VALUE)
+                            if(nSessionId != INVALID_VALUE && nPeerSessionId != INVALID_VALUE && nRelateId != INVALID_VALUE)
                             {
                                 nMsgId = pMsgModel->getMsgId(nRelateId);
                                 if(nMsgId != INVALID_VALUE)
@@ -206,10 +206,10 @@ namespace DB_PROXY {
                             nPeerSessionId = CSessionModel::getInstance()->getSessionId(nToId, nFromId, IM::BaseDefine::SESSION_TYPE_SINGLE, false);
                             if(INVALID_VALUE ==  nPeerSessionId)
                             {
-                                nSessionId = CSessionModel::getInstance()->addSession(nToId, nFromId, IM::BaseDefine::SESSION_TYPE_SINGLE);
+                                nPeerSessionId = CSessionModel::getInstance()->addSession(nToId, nFromId, IM::BaseDefine::SESSION_TYPE_SINGLE);
                             }
                             uint32_t nRelateId = CRelationModel::getInstance()->getRelationId(nFromId, nToId, true);
-                            if(nSessionId != INVALID_VALUE && nRelateId != INVALID_VALUE)
+                            if(nSessionId != INVALID_VALUE && nPeerSessionId != INVALID_VALUE && nRelateId != INVALID_VALUE)
                             {
                                 nMsgId = pMsgModel->getMsgId(nRelateId);
                                 if(nMsgId != INVALID_VALUE) {
@@ -333,13 +333,13 @@ namespace DB_PROXY {
                 if(IM::BaseDefine::SESSION_TYPE_SINGLE == nType)
                 {
                     string strMsg;
-                    IM::BaseDefine::MsgType nMsgType;
+                    IM::BaseDefine::MsgType nMsgType = (IM::BaseDefine::MsgType)0;
                     CMessageModel::getInstance()->getLastMsg(nUserId, nPeerId, nMsgId, strMsg, nMsgType, 1);
                 }
                 else
                 {
                     string strMsg;
-                    IM::BaseDefine::MsgType nMsgType;
+                    IM::BaseDefine::MsgType nMsgType = (IM::BaseDefine::MsgType)0;
                     uint32_t nFromId = INVALID_VALUE;
                     CGroupMessageModel::getInstance()->getLastMsg(nPeerId, nMsgId, strMsg, nMsgType, nFromId);
                 }
