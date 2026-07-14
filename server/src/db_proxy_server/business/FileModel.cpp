@@ -25,9 +25,8 @@ CFileModel::~CFileModel()
 
 CFileModel* CFileModel::getInstance()
 {
-    if (m_pInstance == NULL) {
-        m_pInstance = new CFileModel();
-    }
+    static CFileModel instance;
+    m_pInstance = &instance;
     return m_pInstance;
 }
 

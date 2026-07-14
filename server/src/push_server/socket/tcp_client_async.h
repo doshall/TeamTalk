@@ -18,6 +18,7 @@
 #include <queue>
 #include "../sigslot/sigslot.h"
 #include "../type/base_type.h"
+#include <string.h>
 using namespace std;
 using namespace sigslot;
 
@@ -44,7 +45,14 @@ public:
 
 	virtual int32_t SendBufferAsync();
 	virtual BOOL CheckWrite();
-	void SetRemoteIP(const char* szIP) { strcpy(m_szRemoteIP, szIP); }
+	void SetRemoteIP(const char* szIP) {
+		if (szIP) {
+			strncpy(m_szRemoteIP, szIP, sizeof(m_szRemoteIP) - 1);
+			m_szRemoteIP[sizeof(m_szRemoteIP) - 1] = '\0';
+		} else {
+			m_szRemoteIP[0] = '\0';
+		}
+	}
 	virtual const char* GetRemoteIP() const {
 		return m_szRemoteIP;
 	}

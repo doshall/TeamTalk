@@ -50,10 +50,8 @@ CGroupMessageModel::~CGroupMessageModel()
  */
 CGroupMessageModel* CGroupMessageModel::getInstance()
 {
-	if (!m_pInstance) {
-		m_pInstance = new CGroupMessageModel();
-	}
-
+	static CGroupMessageModel instance;
+	m_pInstance = &instance;
 	return m_pInstance;
 }
 

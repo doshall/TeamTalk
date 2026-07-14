@@ -18,10 +18,8 @@ CSessionModel* CSessionModel::m_pInstance = NULL;
 
 CSessionModel* CSessionModel::getInstance()
 {
-    if (!m_pInstance) {
-        m_pInstance = new CSessionModel();
-    }
-    
+    static CSessionModel instance;
+    m_pInstance = &instance;
     return m_pInstance;
 }
 
@@ -31,7 +29,7 @@ void CSessionModel::getRecentSession(uint32_t nUserId, uint32_t lastTime, list<I
     CDBConn* pDBConn = pDBManager->GetDBConn("teamtalk_slave");
     if (pDBConn)
     {
-        string strSql = "select * from IMRecentSession where userId = " + int2string(nUserId) + " and status = 0 and updated >" + int2string(lastTime) + " order by updated desc limit 100";
+        string strSql = "select * from IMRecentSession where userId = " + int2string(nUserId) + " and status = 0 and updated >=" + int2string(lastTime) + " order by updated desc limit 100";
         
         CResultSet* pResultSet = pDBConn->ExecuteQuery(strSql.c_str());
         if (pResultSet)

@@ -29,10 +29,8 @@ CUserModel::~CUserModel()
 
 CUserModel* CUserModel::getInstance()
 {
-    if(m_pInstance == NULL)
-    {
-        m_pInstance = new CUserModel();
-    }
+    static CUserModel instance;
+    m_pInstance = &instance;
     return m_pInstance;
 }
 

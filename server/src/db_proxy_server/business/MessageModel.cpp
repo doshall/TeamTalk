@@ -37,10 +37,8 @@ CMessageModel::~CMessageModel()
 
 CMessageModel* CMessageModel::getInstance()
 {
-	if (!m_pInstance) {
-		m_pInstance = new CMessageModel();
-	}
-
+	static CMessageModel instance;
+	m_pInstance = &instance;
 	return m_pInstance;
 }
 

@@ -9,15 +9,25 @@ class Api extends CI_Controller {
 		$this->load->model('discovery_model');
 	}
 
+	// Public endpoint for IM clients (see loginserver.conf discovery URL).
 	public function discovery()
 	{
-		$data = $this->discovery_model->getList(array('status'=>0));
-		foreach ($data as $key => $value) {
-			unset($data[$key]['id']);
-			unset($data[$key]['status']);
-			unset($data[$key]['created']);
-			unset($data[$key]['updated']);
+		if (strtolower($this->input->server('REQUEST_METHOD')) !== 'get') {
+			show_error('Method Not Allowed', 405);
+			return;
 		}
-		echo json_encode($data);
+
+		$data = $this->discovery_model->getList(array('status'=>0));
+		$result = array();
+		foreach ($data as $row) {
+			$result[] = array(
+				'itemName' => $row['itemName'],
+				'itemUrl' => $row['itemUrl'],
+				'itemPriority' => $row['itemPriority']
+			);
+		}
+		$this->output
+			->set_content_type('application/json')
+			->set_output(json_encode($result));
 	}
 }

@@ -15,10 +15,8 @@ CDepartModel* CDepartModel::m_pInstance = NULL;
 
 CDepartModel* CDepartModel::getInstance()
 {
-    if(NULL == m_pInstance)
-    {
-        m_pInstance = new CDepartModel();
-    }
+    static CDepartModel instance;
+    m_pInstance = &instance;
     return m_pInstance;
 }
 

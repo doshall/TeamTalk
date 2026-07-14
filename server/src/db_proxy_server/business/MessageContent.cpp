@@ -333,13 +333,13 @@ namespace DB_PROXY {
                 if(IM::BaseDefine::SESSION_TYPE_SINGLE == nType)
                 {
                     string strMsg;
-                    IM::BaseDefine::MsgType nMsgType;
+                    IM::BaseDefine::MsgType nMsgType = (IM::BaseDefine::MsgType)0;
                     CMessageModel::getInstance()->getLastMsg(nUserId, nPeerId, nMsgId, strMsg, nMsgType, 1);
                 }
                 else
                 {
                     string strMsg;
-                    IM::BaseDefine::MsgType nMsgType;
+                    IM::BaseDefine::MsgType nMsgType = (IM::BaseDefine::MsgType)0;
                     uint32_t nFromId = INVALID_VALUE;
                     CGroupMessageModel::getInstance()->getLastMsg(nPeerId, nMsgId, strMsg, nMsgType, nFromId);
                 }
