@@ -18,6 +18,7 @@
 #include "AudioModel.h"
 #include "SessionModel.h"
 #include "RelationModel.h"
+#include "UserModel.h"
 
 using namespace std;
 
@@ -216,20 +217,22 @@ void CMessageModel::getUnreadMsgCount(uint32_t nUserId, uint32_t &nTotalCnt, lis
                 cUnreadInfo.set_session_type(IM::BaseDefine::SESSION_TYPE_SINGLE);
                 uint32_t nMsgId = 0;
                 string strMsgData;
-                IM::BaseDefine::MsgType nMsgType;
-                getLastMsg(cUnreadInfo.session_id(), nUserId, nMsgId, strMsgData, nMsgType);
+                IM::BaseDefine::MsgType nMsgType = (IM::BaseDefine::MsgType)0;
+                uint32_t nFromUserId = 0;
+                getLastMsg(cUnreadInfo.session_id(), nUserId, nMsgId, strMsgData, nMsgType, 0, &nFromUserId);
                 if(IM::BaseDefine::MsgType_IsValid(nMsgType))
                 {
                     cUnreadInfo.set_latest_msg_id(nMsgId);
                     cUnreadInfo.set_latest_msg_data(strMsgData);
                     cUnreadInfo.set_latest_msg_type(nMsgType);
-                    cUnreadInfo.set_latest_msg_from_user_id(cUnreadInfo.session_id());
+                    cUnreadInfo.set_latest_msg_from_user_id(nFromUserId);
                     lsUnreadCount.push_back(cUnreadInfo);
                     nTotalCnt += cUnreadInfo.unread_cnt();
                 }
                 else
                 {
                     log("invalid msgType. userId=%u, peerId=%u, msgType=%u", nUserId, cUnreadInfo.session_id(), nMsgType);
+                    CUserModel::getInstance()->clearUserCounter(nUserId, cUnreadInfo.session_id(), IM::BaseDefine::SESSION_TYPE_SINGLE);
                 }
             }
         }
@@ -268,7 +271,7 @@ uint32_t CMessageModel::getMsgId(uint32_t nRelateId)
  *  @param nMsgType   <#nMsgType description#>
  *  @param nStatus    0获取未被删除的，1获取所有的，默认获取未被删除的
  */
-void CMessageModel::getLastMsg(uint32_t nFromId, uint32_t nToId, uint32_t& nMsgId, string& strMsgData, IM::BaseDefine::MsgType& nMsgType, uint32_t nStatus)
+void CMessageModel::getLastMsg(uint32_t nFromId, uint32_t nToId, uint32_t& nMsgId, string& strMsgData, IM::BaseDefine::MsgType& nMsgType, uint32_t nStatus, uint32_t* pFromUserId)
 {
     uint32_t nRelateId = CRelationModel::getInstance()->getRelationId(nFromId, nToId, false);
     
@@ -280,7 +283,7 @@ void CMessageModel::getLastMsg(uint32_t nFromId, uint32_t nToId, uint32_t& nMsgI
         if (pDBConn)
         {
             string strTableName = "IMMessage_" + int2string(nRelateId % 8);
-            string strSql = "select msgId,type,content from " + strTableName + " force index (idx_relateId_status_created) where relateId= " + int2string(nRelateId) + " and status = 0 order by created desc, id desc limit 1";
+            string strSql = "select msgId,type,content,fromId from " + strTableName + " force index (idx_relateId_status_created) where relateId= " + int2string(nRelateId) + " and status = 0 order by created desc, id desc limit 1";
             CResultSet* pResultSet = pDBConn->ExecuteQuery(strSql.c_str());
             if (pResultSet)
             {
@@ -289,6 +292,10 @@ void CMessageModel::getLastMsg(uint32_t nFromId, uint32_t nToId, uint32_t& nMsgI
                     nMsgId = pResultSet->GetInt("msgId");
 
                     nMsgType = IM::BaseDefine::MsgType(pResultSet->GetInt("type"));
+                    if (pFromUserId)
+                    {
+                        *pFromUserId = pResultSet->GetInt("fromId");
+                    }
                     if (nMsgType == IM::BaseDefine::MSG_TYPE_SINGLE_AUDIO)
                     {
                         // "[语音]"加密后的字符串

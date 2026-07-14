@@ -39,7 +39,7 @@ class Group extends TT_Controller {
 	public function del()
 	{
 		$id = $this->input->post('id');
-		$result = $this->group_model->updateByWhere(array('status'=>0), 'id', $id);
+		$result = $this->group_model->updateByWhere(array('status'=>1), 'id', $id);
 		if($result){
 			echo 'success';
 		}
@@ -99,7 +99,7 @@ class Group extends TT_Controller {
 		$users = $this->grouprelation_model->getList(array('status'=>0,'groupId'=>$id), '*', 0, $perpage);
 		foreach ($users as $key => $value) {
 			$_data = $this->user_model->getOne(array('id'=>$value['userId']));
-			$users[$key]['name'] = $_data['name'];
+			$users[$key]['name'] = $_data ? $_data['name'] : '';
 		}
 		$data = array();
 		$result = array(
