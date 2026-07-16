@@ -59,9 +59,11 @@
 	
 **file_server:**
 	
-	Address=192.168.1.2	
-	ListenPort=8500			
-	TaskTimeout=60        
+	ClientListenIP=192.168.1.2
+	ClientListenPort=8600
+	MsgServerListenIP=127.0.0.1
+	MsgServerListenPort=8601
+	TaskTimeout=60
 	
 **db_proxy:**
 	
@@ -211,9 +213,11 @@
 	
 **file_server:**
 	
-	Address=122.222.222.222	
-	ListenPort=8500			
-	TaskTimeout=60        
+	ClientListenIP=122.222.222.222
+	ClientListenPort=8600
+	MsgServerListenIP=127.0.0.1
+	MsgServerListenPort=8601
+	TaskTimeout=60
 	
 **db_proxy:**
 	
@@ -364,9 +368,11 @@
 	
 **file_server:**
 	
-	Address=122.222.222.222	
-	ListenPort=8500			
-	TaskTimeout=60        
+	ClientListenIP=122.222.222.222
+	ClientListenPort=8600
+	MsgServerListenIP=127.0.0.1
+	MsgServerListenPort=8601
+	TaskTimeout=60
 	
 **db_proxy:**
 	
