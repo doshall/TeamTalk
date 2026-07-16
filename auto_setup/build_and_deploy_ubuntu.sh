@@ -194,6 +194,7 @@ deploy_im_server() {
     cp -f "$ROOT_DIR/auto_setup/im_server/conf/msgserver.conf" "$IM_DIR/msg_server/"
     cp -f "$ROOT_DIR/auto_setup/im_server/conf/routeserver.conf" "$IM_DIR/route_server/"
     cp -f "$ROOT_DIR/auto_setup/im_server/conf/fileserver.conf" "$IM_DIR/file_server/"
+    cp -f "$ROOT_DIR/server/src/file_server/fileserver.conf" "$IM_DIR/file_server/"
     cp -f "$ROOT_DIR/auto_setup/im_server/conf/msfs.conf" "$IM_DIR/msfs/"
     cp -f "$ROOT_DIR/auto_setup/im_server/conf/httpmsgserver.conf" "$IM_DIR/http_msg_server/"
     cp -f "$ROOT_DIR/auto_setup/im_server/conf/pushserver.conf" "$IM_DIR/push_server/"
