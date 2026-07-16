@@ -80,11 +80,15 @@ build_servers() {
     echo "#endif" >> base/version.h
 
     mkdir -p lib
+    CMAKE_EXTRA_ARGS=(-DCMAKE_C_COMPILER="$CC" -DCMAKE_CXX_COMPILER="$CXX")
+    # Ubuntu 24.04 默认 PIE 链接与旧版 libbase.a 不兼容
+    CMAKE_EXTRA_ARGS+=(-DCMAKE_EXE_LINKER_FLAGS="-no-pie")
+
     for mod in base slog login_server route_server msg_server http_msg_server file_server push_server db_proxy_server msfs; do
         log "编译 $mod ..."
         cd "$SRC_DIR/$mod"
         rm -rf CMakeCache.txt CMakeFiles
-        cmake -DCMAKE_C_COMPILER="$CC" -DCMAKE_CXX_COMPILER="$CXX" .
+        cmake "${CMAKE_EXTRA_ARGS[@]}" .
         make -j"$(nproc)"
     done
 
@@ -193,7 +197,6 @@ deploy_im_server() {
     cp -f "$ROOT_DIR/auto_setup/im_server/conf/loginserver.conf" "$IM_DIR/login_server/"
     cp -f "$ROOT_DIR/auto_setup/im_server/conf/msgserver.conf" "$IM_DIR/msg_server/"
     cp -f "$ROOT_DIR/auto_setup/im_server/conf/routeserver.conf" "$IM_DIR/route_server/"
-    cp -f "$ROOT_DIR/auto_setup/im_server/conf/fileserver.conf" "$IM_DIR/file_server/"
     cp -f "$ROOT_DIR/server/src/file_server/fileserver.conf" "$IM_DIR/file_server/"
     cp -f "$ROOT_DIR/auto_setup/im_server/conf/msfs.conf" "$IM_DIR/msfs/"
     cp -f "$ROOT_DIR/auto_setup/im_server/conf/httpmsgserver.conf" "$IM_DIR/http_msg_server/"
@@ -210,6 +213,33 @@ deploy_im_server() {
         log "重启 $svc ..."
         ./restart.sh "$svc" || log "警告: $svc 启动失败，请检查 $IM_DIR/$svc/log"
     done
+
+    validate_file_server_config "$IM_DIR/file_server/fileserver.conf"
+    sleep 2
+    if ss -tln 2>/dev/null | grep -q ':8600 '; then
+        log "file_server 已监听 8600 (客户端)"
+    else
+        log "警告: file_server 未监听 8600，请检查 fileserver.conf 是否包含 ClientListenIP/ClientListenPort"
+    fi
+    if ss -tln 2>/dev/null | grep -q ':8601 '; then
+        log "file_server 已监听 8601 (msg_server)"
+    else
+        log "警告: file_server 未监听 8601，请检查 MsgServerListenIP/MsgServerListenPort"
+    fi
+}
+
+validate_file_server_config() {
+    local conf="$1"
+    local missing=0
+    for key in ClientListenIP ClientListenPort MsgServerListenIP MsgServerListenPort TaskTimeout; do
+        if ! grep -q "^${key}=" "$conf"; then
+            log "警告: fileserver.conf 缺少 ${key}=（旧版 Address/ListenPort 已不可用）"
+            missing=1
+        fi
+    done
+    if [ "$missing" -eq 1 ]; then
+        log "参考: server/src/file_server/fileserver.conf"
+    fi
 }
 
 deploy_php() {
@@ -268,6 +298,11 @@ print_status() {
     ps aux | grep -E 'login_server|route_server|db_proxy|msg_server|file_server|msfs|http_msg|push_server|nginx|php-fpm|redis|mariadb' | grep -v grep | awk '{print "  [运行] " $11}' || true
     HTTP_CODE=$(curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1/index.php/api/discovery || echo '000')
     log "API /index.php/api/discovery => HTTP $HTTP_CODE"
+    if ss -tln 2>/dev/null | grep -q ':8600 '; then
+        log "file_server 端口 8600: 监听中"
+    else
+        log "file_server 端口 8600: 未监听"
+    fi
 }
 
 main() {
